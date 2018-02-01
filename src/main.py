@@ -1,6 +1,12 @@
 from Tkinter import *
+from urllib2 import urlopen
+from urllib2 import HTTPError
+from io import BytesIO
 
-import WnidRetrieval
+# Tkinter only displays GIF, PNG images
+from PIL import Image, ImageTk
+
+import ImageNetRetrieval
 
 IMAGE_SOURCES = [
     "ImageNet",
@@ -51,14 +57,50 @@ class Window(Frame):
         self.query_entry.grid(row=0, column=1)
         show_btn.grid(row=1, column = 1)
 
+    # update image source when user changes the image source in the drop down list
     def change_source_list(self, value):
         self.img_source = value
 
     def query_btn_click(self):
         query = str(self.query_entry.get()).lower().strip()
-        wnid_list = WnidRetrieval.getWnid(query)
-        for id in wnid_list:
-            print(id)
+        url_list = ImageNetRetrieval.getUrlFromQuery(query)
+
+        for url in url_list:
+            print(url)
+            # skip dead urls until reaching an available image
+            if (self.show_image(url)):
+                break
+
+    def show_image(self, img_url):
+
+        # read and decode the image
+        # if image url is not available, return False
+        try:
+            raw_img = urlopen(img_url).read()
+        except HTTPError:
+            return False
+
+        # catch image format error
+        try:
+            im = Image.open(BytesIO(raw_img))
+        except:
+            return False
+
+        img = ImageTk.PhotoImage(im)
+        print("image size:", img.width(), img.height())
+
+        # initializing a child window
+        img_window = Toplevel()
+        img_window.title("Retrieved image")
+
+        # put image inside a label to display
+        img_lb = Label(img_window, image=img)
+        # !important: set reference for image
+        img_lb.image = img
+        img_lb.grid(row=0, sticky=W)
+        img_lb.pack()
+
+        return True
 
 root = Tk()
 
