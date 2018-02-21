@@ -1,2 +1,2 @@
 # Query images from ImageNet
-Displaying images from ImageNet using Python Tkinter
+Displaying images from Microsoft COCO using Python Tkinter
