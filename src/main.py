@@ -7,6 +7,7 @@ from io import BytesIO
 from PIL import Image, ImageTk
 
 import ImageNetRetrieval
+from COCORetrieval import COCORetrieval
 
 IMAGE_SOURCES = [
     "ImageNet",
@@ -62,16 +63,21 @@ class Window(Frame):
         self.img_source = value
 
     def query_btn_click(self):
+
         query = str(self.query_entry.get()).lower().strip()
-        url_list = ImageNetRetrieval.getUrlFromQuery(query)
 
-        for url in url_list:
-            print(url)
-            # skip dead urls until reaching an available image
-            if (self.show_image(url)):
-                break
+        coco_retrieval = COCORetrieval()
+        coco_retrieval.getClosestCaption(query)
 
-    def show_image(self, img_url):
+        # url_list = ImageNetRetrieval.getUrlFromQuery(query)
+        #
+        # for url in url_list:
+        #     print(url)
+        #     # skip dead urls until reaching an available image
+        #     if (self.show_image_from_url(url)):
+        #         break
+
+    def show_image_from_url(self, img_url):
 
         # read and decode the image
         # if image url is not available, return False

@@ -1,7 +1,7 @@
 import re
 
-SYNSET_PATH = "./data/synset_words.txt"
-IN_URL_PATH = "./data/fall11_urls.txt"
+SYNSET_PATH = "../data/synset_words.txt"
+IN_URL_PATH = "../data/fall11_urls.txt"
 
 # limited at 10 images per wnid are retrieved
 IMAGE_PER_WNID = 10
