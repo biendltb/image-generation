@@ -1,17 +1,19 @@
 import re
 import math
-
+import json
 
 class TfidfCalculator():
-    # def __init__(self, query, docs):
-    #     self.query = query
-    #     self.docs = docs
+    STOP_WORD_PATH = "../data/google_stopwords.json"
+
+    def __init__(self):
+        with open(self.STOP_WORD_PATH) as data_file:
+            self.stop_word_arr = json.load(data_file)
 
     # extract all terms from documents and store in a list
     def extracting_terms(self, doc):
         return re.split('; |, |\*|\s+|\n', doc.lower())
 
-    # calculate term frequecy in a single document
+    # calculate term frequency in a single document
     def tf(self, term, doc):
         norm_doc = self.extracting_terms(doc)
         return norm_doc.count(term.lower()) / float(len(norm_doc))
@@ -28,3 +30,10 @@ class TfidfCalculator():
             return math.log(float(len(docs)) / num_containing_doc)
         else:
             return 0
+
+    # remove stop words from captions before ranking
+    def remove_stop_words(self, doc):
+        for sw in self.stop_word_arr:
+            sw_re = r'\b' + sw.lower() + r'\b'
+            doc = re.sub(sw_re, '', doc.lower())
+        return doc

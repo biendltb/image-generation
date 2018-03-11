@@ -14,8 +14,14 @@ IMAGE_SOURCES = [
     "COCO"
 ]
 
+IMAGE_DATASET_PATH = "../data/val2014/"
+
 # creating class Window inheriting from Frame class
 class Window(Frame):
+
+    NUM_DISPLAYED_IMG = 4
+    # screen height to display image
+    SCREEN_HEIGHT = 768
 
     def __init__(self, master=None):
         # parameters that send through Frame class
@@ -64,10 +70,19 @@ class Window(Frame):
 
     def query_btn_click(self):
 
+        print("Searching for images...")
+
         query = str(self.query_entry.get()).lower().strip()
 
         coco_retrieval = COCORetrieval()
-        coco_retrieval.getClosestCaption(query)
+        im_name_list = coco_retrieval.get_im_file_list(query)
+
+        ims = []
+        for im_name in im_name_list:
+            im_path = IMAGE_DATASET_PATH + im_name
+            ims.append(self.load_image_from_file(im_path))
+
+        self.show_image(ims)
 
         # url_list = ImageNetRetrieval.getUrlFromQuery(query)
         #
@@ -77,7 +92,7 @@ class Window(Frame):
         #     if (self.show_image_from_url(url)):
         #         break
 
-    def show_image_from_url(self, img_url):
+    def load_image_from_url(self, img_url):
 
         # read and decode the image
         # if image url is not available, return False
@@ -92,21 +107,35 @@ class Window(Frame):
         except:
             return False
 
-        img = ImageTk.PhotoImage(im)
-        print("image size:", img.width(), img.height())
+        #img = ImageTk.PhotoImage(im)
+        #print("image size:", img.width(), img.height())
 
+        return im
+
+    def load_image_from_file(self, path):
+        return Image.open(path)
+
+    def show_image(self, ims):
         # initializing a child window
         img_window = Toplevel()
         img_window.title("Retrieved image")
 
-        # put image inside a label to display
-        img_lb = Label(img_window, image=img)
-        # !important: set reference for image
-        img_lb.image = img
-        img_lb.grid(row=0, sticky=W)
-        img_lb.pack()
+        num_im = self.NUM_DISPLAYED_IMG
 
-        return True
+        if len(ims) < self.NUM_DISPLAYED_IMG:
+            num_im = len(ims)
+
+        for i in range(0, num_im):
+
+            resized_im = ims[i].resize((self.SCREEN_HEIGHT/(num_im/2), self.SCREEN_HEIGHT/(num_im/2)), Image.ANTIALIAS)
+
+            img = ImageTk.PhotoImage(resized_im)
+            # put image inside a label to display
+            img_lb = Label(img_window, image=img)
+            # !important: set reference for image
+            img_lb.image = img
+            img_lb.grid(row=i/2, column = i%2)
+            #img_lb.pack()
 
 root = Tk()
 
