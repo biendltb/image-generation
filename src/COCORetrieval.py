@@ -24,6 +24,12 @@ class COCORetrievalSQLite:
         # get the list of words in the query
         q_words = re.split('; |, |\*|\s+|\n', query.lower())
 
+        # remove stop words from the query
+        stop_words = db_conn.get_stop_word_list()
+        for w in q_words:
+            if w in stop_words:
+                q_words.remove(w)
+
         # dictionary contains idf for each words
         # key: word | value: idf
         idf_dic = {}
@@ -45,8 +51,8 @@ class COCORetrievalSQLite:
         # loop through all words in the query sentence
         # calculate tf-idf for each caption containing the word
         for w in q_words:
-            docs_contain_word = db_conn.get_docs_contain(w)
-            for doc_id, doc in docs_contain_word.items():
+            for doc_id, doc in db_conn.get_docs_contain(w).items():
+
                 norm_doc = re.split('; |, |\*|\s+|\n', doc.lower())
                 tf = norm_doc.count(w.lower()) / float(len(norm_doc))
                 # because of avoiding duplicate words in a caption
@@ -166,7 +172,27 @@ class DBConnection:
         for row in rows:
             res = row[0]
 
-        print res
+        #print res
+
+        conn.commit()
+        conn.close()
+
+        return res
+
+    def get_stop_word_list(self):
+        # connect to database
+        conn = sqlite3.connect(self.db_path)
+        cur = conn.cursor()
+
+        query = 'SELECT word FROM stop_words'
+
+        cur.execute(query)
+        rows = cur.fetchall()
+
+        res = []
+
+        for row in rows:
+            res.append(row[0])
 
         conn.commit()
         conn.close()
