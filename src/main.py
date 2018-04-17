@@ -4,10 +4,11 @@ from urllib2 import HTTPError
 from io import BytesIO
 
 # Tkinter only displays GIF, PNG images
+import time
 from PIL import Image, ImageTk
 
 import ImageNetRetrieval
-from COCORetrieval import COCORetrieval
+from COCORetrieval import COCORetrievalJSON, COCORetrievalSQLite
 
 IMAGE_SOURCES = [
     "ImageNet",
@@ -74,8 +75,17 @@ class Window(Frame):
 
         query = str(self.query_entry.get()).lower().strip()
 
-        coco_retrieval = COCORetrieval()
-        im_name_list = coco_retrieval.get_im_file_list(query)
+        # measure time
+        start_time = time.time()
+
+        # coco_retrieval = COCORetrievalJSON()
+        # im_name_list = coco_retrieval.get_im_file_list(query)
+
+        # get top 10 images
+        coco_retrieval = COCORetrievalSQLite()
+        im_name_list = coco_retrieval.query(query, 10)
+
+        print('Execution time: %r' % (time.time() - start_time))
 
         ims = []
         for im_name in im_name_list:
