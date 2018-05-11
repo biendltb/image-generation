@@ -20,7 +20,7 @@ IMAGE_DATASET_PATH = "../data/val2014/"
 # creating class Window inheriting from Frame class
 class Window(Frame):
 
-    NUM_DISPLAYED_IMG = 4
+    NUM_DISPLAYED_IMG = 5
     # screen height to display image
     SCREEN_HEIGHT = 768
 
@@ -92,7 +92,8 @@ class Window(Frame):
             im_path = IMAGE_DATASET_PATH + im_name
             ims.append(self.load_image_from_file(im_path))
 
-        self.show_image(ims)
+        #self.show_multi_images(ims)
+        self.show_single_image(ims)
 
         # url_list = ImageNetRetrieval.getUrlFromQuery(query)
         #
@@ -125,7 +126,7 @@ class Window(Frame):
     def load_image_from_file(self, path):
         return Image.open(path)
 
-    def show_image(self, ims):
+    def show_multi_images(self, ims):
         # initializing a child window
         img_window = Toplevel()
         img_window.title("Retrieved image")
@@ -137,15 +138,29 @@ class Window(Frame):
 
         for i in range(0, num_im):
 
-            resized_im = ims[i].resize((self.SCREEN_HEIGHT/(num_im/2), self.SCREEN_HEIGHT/(num_im/2)), Image.ANTIALIAS)
+            resized_im = ims[i].resize((self.SCREEN_HEIGHT/(num_im/1), self.SCREEN_HEIGHT/(num_im/1)), Image.ANTIALIAS)
 
             img = ImageTk.PhotoImage(resized_im)
             # put image inside a label to display
             img_lb = Label(img_window, image=img)
             # !important: set reference for image
             img_lb.image = img
-            img_lb.grid(row=i/2, column = i%2)
+            img_lb.grid(row=i/5, column = i%5)
             #img_lb.pack()
+
+    def show_single_image(self, ims):
+        # initializing a child window
+        img_window = Toplevel()
+        img_window.title("Retrieved image")
+
+        img = ImageTk.PhotoImage(ims[0])
+
+        # put image inside a label to display
+        img_lb = Label(img_window, image=img)
+
+        # !important: set reference for image
+        img_lb.image = img
+        img_lb.grid(row=0, column=0)
 
 root = Tk()
 

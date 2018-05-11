@@ -74,6 +74,7 @@ class COCORetrievalSQLite:
         ims = []
         for ele in sorted_tfidf:
             im_name = db_conn.get_im_name(ele[0])
+            #print ele[0]
             if im_name not in ims:
                 ims.append(im_name)
             if len(ims) >= num_top:
