@@ -24,6 +24,13 @@ class Window(Frame):
     # screen height to display image
     SCREEN_HEIGHT = 768
 
+    # current image index in the loop
+    curr_index = 0
+
+    # list image uri
+    ims = []
+    img_window = None
+
     def __init__(self, master=None):
         # parameters that send through Frame class
         Frame.__init__(self, master)
@@ -87,13 +94,14 @@ class Window(Frame):
 
         print('Execution time: %r' % (time.time() - start_time))
 
-        ims = []
+        self.ims = []
+        self.curr_index = 0
         for im_name in im_name_list:
             im_path = IMAGE_DATASET_PATH + im_name
-            ims.append(self.load_image_from_file(im_path))
+            self.ims.append(self.load_image_from_file(im_path))
 
         #self.show_multi_images(ims)
-        self.show_single_image(ims)
+        self.show_single_image(self.ims)
 
         # url_list = ImageNetRetrieval.getUrlFromQuery(query)
         #
@@ -149,18 +157,41 @@ class Window(Frame):
             #img_lb.pack()
 
     def show_single_image(self, ims):
-        # initializing a child window
-        img_window = Toplevel()
-        img_window.title("Retrieved image")
 
-        img = ImageTk.PhotoImage(ims[0])
+        if self.img_window is not None:
+            self.img_window.destroy()
+
+            # initializing a child window
+        self.img_window = Toplevel()
+        self.img_window.title("Retrieved image")
+
+        # set key and mouse event for the child window
+        self.img_window.bind("<KeyPress>", self.key_down)
+        self.img_window.bind("<Button-1>", self.click)
+
+        self.curr_index+=1
+
+        # if the index is over array length, reset it
+        if self.curr_index == len(ims):
+            self.curr_index = 0
+
+        img = ImageTk.PhotoImage(ims[self.curr_index])
 
         # put image inside a label to display
-        img_lb = Label(img_window, image=img)
+        img_lb = Label(self.img_window, image=img)
 
         # !important: set reference for image
         img_lb.image = img
         img_lb.grid(row=0, column=0)
+
+    def key_down(self, e):
+        self.show_single_image(self.ims)
+        print 'down', e.char
+
+    def click(self, e):
+        # ignore if click on the window bar to drag the window
+        if e.y > 0:
+            self.show_single_image(self.ims)
 
 root = Tk()
 
